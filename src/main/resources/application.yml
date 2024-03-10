@@ -1,0 +1,89 @@
+spring:
+  security:
+    user:
+
+      # Definition of the user details that we will use for login
+      # in the authorization server
+
+      name: user
+      password: "{noop}password"
+      roles: USER
+
+    # Oauth2 client registration starts from here
+
+    oauth2:
+      authorization-server:
+        client:
+          oidc-client:
+            registration:
+              client-id: oidc-client
+              client-secret: "{noop}secret"
+              authorization-grant-types:
+                - "authorization_code"
+                - "refresh_token"
+              client-authentication-methods:
+                - none #client_secret_basic
+
+              # This following redirect URI will be used to redirect the resource owner to the
+              # Client application after the resource owner (user) provides necessary consents.
+
+              redirect-uris:
+                - http://localhost:8080/login/oauth2/code/oidc-client
+              post-logout-redirect-uris:
+                - http://localhost:8080/logout
+
+              # The scopes are defined in the authorization server.
+              # These won't display in the consent page
+
+              scopes:
+                - "openid"
+                - "profile"
+                - "myapi"
+
+            require-authorization-consent: true
+            token:
+              access-token-time-to-live: 60s
+              refresh-token-time-to-live: 60s
+      client:
+        registration:
+
+          # Client registration starts here
+          oidc-client:
+            provider: spring
+            client-id: oidc-client
+            client-secret: secret
+            authorization-grant-type: authorization_code
+
+            # The following redirect URL is the redirect URL definition of our client Server application.
+            # It is generally the current application host address. The authorization server's redirect URL
+            # definition means that this URL will be triggered when auth server redirects data to here.
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+
+            # Scopes that will be displayed for requesting in the consent page.
+            # Authorization server must have equal or more scopes than these in number
+            scope:
+              - openid
+              - profile
+              - myapi
+            client-authentication-method: client_secret_basic
+
+            # This client name will display in the login screen as social login type
+            client-name: oidc-client
+
+        # As mentioned above about provider, here we register the provider details
+        # for any unknown provider with their issuer URI
+        provider:
+          spring:
+            issuer-uri: http://localhost:8080
+
+        # Since our application acts as both authorization client and resource server,
+        # here is the configuration for resource server
+      resource-server:
+        jwt:
+          issuer-uri: http://localhost:8080
+
+logging:
+  level:
+    org:
+      springframework:
+        security: trace
