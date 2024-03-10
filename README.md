@@ -24,3 +24,6 @@ Here's the demo to steal JWT and use in next API call
 ![Successfull call via stolen JWT](./imgs/demo-003.png)
 
 Lesson learnt: use unique scope per microservice with fine grained access control for GET, POST, PUT, PATCH, DELETE
+
+![JWT as JSON](./imgs/jwt-001.png)
+
